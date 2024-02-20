@@ -18,7 +18,7 @@ export const Navbar = () => {
                 </Button>
                 <Button size="sm" asChild>
                     <Link
-                        href="/sign-in"
+                        href="/sign-up"
                     >
                         Get Taskify for free
                     </Link>
