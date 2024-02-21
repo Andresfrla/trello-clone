@@ -2,7 +2,9 @@
 
 import { AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { Activity, CreditCard, Layout, Settings } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export type Organization = {
     id: string;
@@ -24,6 +26,31 @@ export const NavItem = ({
     onExpand,
     organization
 }: NavItemProps) => {
+    const router = useRouter()
+
+    const routes = [
+        {
+            labels: "Boards",
+            icon: <Layout className="size-4 mr-2" />,
+            href: `/organization/${organization.id}`
+        },
+        {
+            labels: "Activity",
+            icon: <Activity className="size-4 mr-2" />,
+            href: `/organization/${organization.id}/activity`
+        },
+        {
+            labels: "Settings",
+            icon: <Settings className="size-4 mr-2" />,
+            href: `/organization/${organization.id}/settings`
+        },
+        {
+            labels: "Billing",
+            icon: <CreditCard className="size-4 mr-2" />,
+            href: `/organization/${organization.id}/billing`
+        },
+    ]
+
   return (
     <AccordionItem
         value={organization.id}
