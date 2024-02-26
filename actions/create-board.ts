@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export type State = {
   errors?: {
@@ -23,7 +24,7 @@ export async function create(prevState: State,formData: FormData){
         title: formData.get("title")
     })
 
-    if(!validatedFields){
+    if(!validatedFields.success){
       return {
         errors: validatedFields.error.flatten().fieldErrors,
         message: "Missing fields"
@@ -32,11 +33,17 @@ export async function create(prevState: State,formData: FormData){
 
     const { title } = validatedFields.data
 
-    await db.board.create({
-      data: {
-        title,
+    try {
+      await db.board.create({
+        data: {
+          title,
+        }
+      })
+    } catch (error) {
+      return {
+        message: "Database Error"
       }
-    })
-
-    revalidatePath(`/organization/org_2cgk5nzlKtL4vl8AzLF6rzeUmrv`)
+    }
+    revalidatePath("/organization/org_2cgk5nzlKtL4vl8AzLF6rzeUmrv")
+    redirect("/organization/org_2cgk5nzlKtL4vl8AzLF6rzeUmrv")
   }

@@ -13,7 +13,7 @@ const OrganizationIdPage = async () => {
           {boards.map((board) => (
             <Board key={board.id} title={board.title} id={board.id}/>
           ))}
-        F</div>
+        </div>
     </div>
   )
 }
