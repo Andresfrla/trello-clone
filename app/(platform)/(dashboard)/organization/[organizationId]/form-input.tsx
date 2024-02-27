@@ -1,16 +1,32 @@
-import React from 'react'
+import { Input } from "@/components/ui/input"
+import { useFormStatus } from "react-dom"
 
-const FormInput = () => {
+interface FormInputProps {
+  errors?: {
+    title?: string[]
+  }
+}
+
+const FormInput = ({errors}: FormInputProps) => {
+  const { pending }  = useFormStatus()
+
   return (
     <div>
-    <input 
-              id="title"
-              name="title"
-              required
-              placeholder="Enter a Board Title"
-              className="border-black border p-1"
-            />
-            </div>
+      <Input 
+        id="title"
+        name="title"
+        required
+        placeholder="Enter a Board Title"
+        disabled={pending}
+      />
+
+      {errors?.title ? 
+        errors.title.map((error: string) => (
+        <p key={error} className="text-rose-500">
+          {error}
+        </p>
+      )): null}
+    </div>
   )
 }
 
