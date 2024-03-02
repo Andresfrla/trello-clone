@@ -5,7 +5,7 @@ import { InputType, ReturnType } from "./types"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { createSafeAction } from "@/lib/create-safe-action"
-import { CreateCard } from "./schema"
+import { CreateList } from "./schema"
 
 const handler = async (data: InputType): Promise<ReturnType> => {
     const { userId, orgId } = auth()
@@ -16,41 +16,39 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         }
     }
 
-    const { title, boardId, listId } = data
-    let card 
+    const { title, boardId } = data
+    let list 
 
     try {
-        const list = await db.list.findUnique({
+        const board = await db.board.findUnique({
             where: {
-                id: listId,
-                board: {
-                    orgId,
-                },
-            },
-        })
+                id: boardId,
+                orgId: orgId
+                }
+            }
+        )
 
-        if(!list){
+        if(!board){
             return {
-                error: "List not found"
+                error: "Board not found",
             }
         }
 
-        const lastCard = await db.card.findFirst({
-            where: { listId, },
-            orderBy: { order: "desc" },
-            select: { order: true },
+        const lastList = await db.list.findFirst({
+            where: { boardId: boardId},
+            orderBy: { order: "desc"},
+            select: { order: true }
         })
 
-        const newOrder = lastCard ? lastCard.order + 1 : 1;
+        const newOrder = lastList ? lastList.order + 1 : 1
 
-        card = await db.card.create({
+        list = await db.list.create({
             data: {
                 title,
-                listId,
-                order: newOrder,
+                boardId,
+                order: newOrder
             }
         })
-
     } catch (error) {
         return {
             error: "Failed to create."
@@ -58,7 +56,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     }
 
     revalidatePath(`/board/${boardId}`)
-    return { data: card}
+    return { data: list}
 }
 
-export const createCard = createSafeAction(CreateCard, handler)
+export const createList = createSafeAction(CreateList, handler)
