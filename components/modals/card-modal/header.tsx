@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "lucide-react";
 import { useParams } from "next/navigation";
 import { ElementRef, useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface HeaderProps {
     data: CardWithList;
@@ -20,7 +21,19 @@ export const Header = ({
     const queryClient = useQueryClient()
     const params = useParams()
 
-    const { execute } = useAction(updateCard)
+    const { execute } = useAction(updateCard,{
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({
+            queryKey: ["card", data.id]
+        })
+
+        toast.success(`Renamed to "${data.title}"`)
+        settitle(data.title)
+        },
+        onError: (error) => {
+            toast.error(error)
+        }
+    })
 
     const inputRef = useRef<ElementRef<"input">>(null)
 
@@ -33,6 +46,10 @@ export const Header = ({
     const onSubmit = (formData: FormData) => {
         const title = formData.get("title") as string
         const boardId = params.boardId as string
+
+        if(title === data.title){
+            return
+        }
 
         execute({
             title,
