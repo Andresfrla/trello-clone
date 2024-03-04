@@ -119,6 +119,7 @@ const onDragEnd = (result: any) => {
         items: reorderedCards
       })
 
+
     } else {
       // Remove card from the source list
       const [movedCard] = sourceList.cards.splice(source.index, 1)
@@ -139,6 +140,10 @@ const onDragEnd = (result: any) => {
       })
 
       setOrderData(newOrderedData)
+      executeUpdateCardOrder({
+        boardId: boardId,
+        items: destList.cards
+      })
     }
   }
 }
