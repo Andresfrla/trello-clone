@@ -5,6 +5,10 @@ import { ListForm } from "./list-form"
 import { useEffect, useState } from "react"
 import { DragDropContext,Droppable } from "@hello-pangea/dnd"
 import { ListItem } from "./list-item"
+import { useAction } from "@/hooks/use-action"
+import { updateListOrder } from "@/actions/update-list-order"
+import { toast } from "sonner"
+import { updateCardOrder } from "@/actions/update-card-order"
 
 interface ListContainerProps {
     data: ListWithCards[]
@@ -23,6 +27,24 @@ export const ListContainer = ({
     boardId
 }: ListContainerProps) => {
   const [orderData, setOrderData] = useState(data)
+
+  const { execute: executeUpdateListOrder } = useAction(updateListOrder, {
+    onSuccess: () => {
+      toast.success("List reordered")
+    },
+    onError: (error) => {
+      toast.error(error)
+    }
+  })
+
+  const { execute: executeUpdateCardOrder } = useAction(updateCardOrder, {
+    onSuccess: () => {
+      toast.success("Card reordered")
+    },
+    onError: (error) => {
+      toast.error(error)
+    }
+  })
 
 useEffect(() => {
   setOrderData(data)
@@ -51,7 +73,8 @@ const onDragEnd = (result: any) => {
       destination.index
     ).map((item, index) => ({...item, order: index}))
 
-    setOrderData(items)
+    setOrderData(items);
+    executeUpdateListOrder({items, boardId})
   }
 
   // User moves a card
@@ -78,19 +101,24 @@ const onDragEnd = (result: any) => {
 
     // Movign the card in the same list
     if(source.droppableId === destination.droppableId){
-      const reordededCards = reorder(
+      const reorderedCards = reorder(
         sourceList.cards,
         source.index,
         destination.index
       )
 
-      reordededCards.forEach((card, idx) => {
+      reorderedCards.forEach((card, idx) => {
         card.order = idx
       })
 
-      sourceList.cards = reordededCards
+      sourceList.cards = reorderedCards
 
       setOrderData(newOrderedData)
+      executeUpdateCardOrder({
+        boardId: boardId,
+        items: reorderedCards
+      })
+
     } else {
       // Remove card from the source list
       const [movedCard] = sourceList.cards.splice(source.index, 1)
