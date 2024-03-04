@@ -38,7 +38,7 @@ export const ListHeader = ({
 
     const { execute } = useAction(updateList, {
         onSuccess: (data) => {
-            toast.success(`Renamed to "${data.title}`)
+            toast.success(`Renamed to "${data.title}"`)
             setTitle(data.title)
             disableEditing()
         },
