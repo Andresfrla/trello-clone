@@ -11,18 +11,93 @@ interface ListContainerProps {
     boardId: string
 }
 
+function reorder<T>(list: T[], startIndex: number, endIndex: number) {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1)
+  result.splice(endIndex, 0, removed)
+  return result;
+}
+
 export const ListContainer = ({
     data,
     boardId
 }: ListContainerProps) => {
   const [orderData, setOrderData] = useState(data)
 
-  useEffect(() => {
-    setOrderData(data)
-  }, [data])
+useEffect(() => {
+  setOrderData(data)
+}, [data])
+
+const onDragEnd = (result: any) => {
+  const { destination, source, type } = result
+
+  if(!destination) {
+    return
+  }
+
+  // If droppe in the same position
+  if(
+    destination.droppableId === source.droppableId &&
+    destination.index === source.index
+  ) {
+    return
+  }
+
+  // User moves a List
+  if(type === 'list') {
+    const items = reorder(
+      orderData,
+      source.index,
+      destination.index
+    ).map((item, index) => ({...item, order: index}))
+
+    setOrderData(items)
+  }
+
+  // User moves a card
+  if(type === "card"){
+    let newOrderedData = [...orderData]
+
+    // Source and destination list
+    const sourceList = newOrderedData.find(list => list.id === source.droppableId)
+    const destList = newOrderedData.find(list => list.id === destination.droppableId)
+
+    if(!sourceList || !destList){
+      return
+    }
+
+    // Check if card exist on the source list
+    if(!sourceList.cards){
+      sourceList.cards = []
+    }
+
+    // Check id cards exist on the destList
+    if(!destList.cards){
+      destList.cards = []
+    }
+
+    // Movign the card in the same list
+    if(source.droppableID === destination.droppableId){
+      const reordededCards = reorder(
+        sourceList.cards,
+        source.index,
+        destination.index
+      )
+
+      reordededCards.forEach((card, idx) => {
+        card.order = idx
+      })
+
+      sourceList.cards = reordededCards
+
+      setOrderData(newOrderedData)
+    }
+  }
+
+}
 
   return (
-    <DragDropContext onDragEnd={() => {}}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="lists" type="list" direction="horizontal">
         {(provided) => (
         <ol 
