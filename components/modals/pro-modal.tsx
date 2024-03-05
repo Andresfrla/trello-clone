@@ -3,12 +3,11 @@
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-
+import { useProModal } from "@/hooks/use-pro-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAction } from "@/hooks/use-action";
 import { stripeRedirect } from "@/actions/stripe-redirect";
 import { toast } from "sonner";
-import { useProModal } from "@/hooks/user-pro-modal";
 
 export const ProModal = () => {
   const proModal = useProModal();
@@ -25,7 +24,7 @@ export const ProModal = () => {
   const onClick = () => {
     execute({});
   };
-
+  
   return (
     <Dialog
       open={proModal.isOpen}
